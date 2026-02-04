@@ -41,10 +41,7 @@ def action():
 # Debug Endpoint
 @app.route("/dial_status", methods=["POST"])
 def dial_status():
-    print("DialCallStatus:", request.form.get("DialCallStatus"))
-    print("HangupCause:", request.form.get("HangupCause"))
-    print("DialALegUUID:", request.form.get("DialALegUUID"))
-    print("DialBLegUUID:", request.form.get("DialBLegUUID"))
+    print("Calling")
     return "<Response></Response>"
 
 
