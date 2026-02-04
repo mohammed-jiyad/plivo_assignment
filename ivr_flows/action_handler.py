@@ -1,12 +1,16 @@
 from flask import Response, request
-from config import ASSOCIATE_NUMBER, BASE_URL
+from config import ASSOCIATE_NUMBER, BASE_URL, SOURCE_NUMBER
 from utils.helpers import is_same_number
 
 
 def handle_action():
     digit = request.form.get("Digits")
     lang = request.args.get("lang", "1")
-    caller_number = request.form.get("To")
+    caller_number = request.form.get("From")
+
+    # Default response safeguard
+    xml = "<Response><Speak>Invalid option. Goodbye.</Speak></Response>"
+
     if digit == "1":
         if lang == "2":
             speech = "<Speak>Reproduciendo su mensaje.</Speak>"
@@ -19,6 +23,7 @@ def handle_action():
             <Play>https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3</Play>
         </Response>
         """
+
     elif digit == "2":
         if is_same_number(caller_number, ASSOCIATE_NUMBER):
             xml = """
@@ -28,15 +33,12 @@ def handle_action():
             """
         else:
             xml = f"""
-        <Response>
-            <Speak>Connecting you to an associate.</Speak>
-            <Dial action="{BASE_URL}/dial_status" method="POST">
-                {ASSOCIATE_NUMBER}
-            </Dial>
-        </Response>
-"""
-
-    else:
-        xml = "<Response><Speak>Invalid option. Goodbye.</Speak></Response>"
+            <Response>
+                <Speak>Connecting you to an associate.</Speak>
+                <Dial action="{BASE_URL}/dial_status" method="POST" callerId="{SOURCE_NUMBER}">
+                    <Number>{ASSOCIATE_NUMBER}</Number>
+                </Dial>
+            </Response>
+            """
 
     return Response(xml, mimetype="text/xml")
